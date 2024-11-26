@@ -76,6 +76,8 @@ const renderChart = () => {
     },
   });
 };
+const discardAllBtn = document.querySelector(".discardAllBtn");
+
 // 渲染訂單
 const renderOrderList = () => {
   const orderListHtml = orderData
@@ -117,6 +119,12 @@ const renderOrderList = () => {
     })
     .join("");
   orderList.innerHTML = orderListHtml;
+  // 無訂單時隱藏
+if (orderData.length === 0) {
+  discardAllBtn.classList.add("d-none");
+}else{
+  discardAllBtn.classList.remove("d-none");
+}
 };
 // 修改訂單
 const updateOrder = async (status, id, btn) => {
@@ -160,12 +168,34 @@ const discardOrder = async (id, btn) => {
   }
 };
 // 刪除全部訂單
-const discardAllBtn = document.querySelector(".discardAllBtn");
+
 discardAllBtn.addEventListener("click", (e) => {
   e.preventDefault();
   const btn = e.target;
-  btn.classList.add("disabled");
-  discardAllOrder(btn);
+  if (e.target.classList.contains("discardAllBtn")) {
+    Swal.fire({
+      title: "您確定要刪除全部訂單?",
+      text: "刪除後將無法恢復！",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      cancelButtonText: "取消",
+      confirmButtonText: "確定刪除",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "已成功刪除全部訂單",
+          text: "訂單已清空",
+          icon: "success",
+        });
+        btn.classList.add("disabled");
+        discardAllOrder(btn);
+      }
+    });
+  } else {
+    return;
+  }
 });
 const discardAllOrder = async (btn) => {
   try {

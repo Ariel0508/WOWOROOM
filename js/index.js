@@ -2,7 +2,6 @@ import axios from "axios";
 import validate from "validate.js";
 import { formatNumber, Toast } from "./util.js";
 
-
 document.addEventListener("DOMContentLoaded", function () {
   const ele = document.querySelector(".recommendation-wall");
   ele.style.cursor = "grab";
@@ -197,7 +196,7 @@ const addCart = async (id, btn) => {
     await axios.post(`${customerApi}/${apiPath}/carts`, data);
     Toast.fire({
       icon: "success",
-      title: "成功加入購物車"
+      title: "成功加入購物車",
     });
     getCarts();
   } catch (err) {
@@ -225,6 +224,7 @@ const updateCart = async (id, quantity, btn) => {
   };
   try {
     await axios.patch(`${customerApi}/${apiPath}/carts`, data);
+    btn.classList.remove("disabled");
     getCarts();
   } catch (err) {
     console.log(err);
@@ -238,8 +238,9 @@ cartsList.addEventListener("click", (e) => {
   if (
     !btn.classList.contains("increaseBtn") &&
     !btn.classList.contains("decreaseBtn")
-  )
+  ) {
     return;
+  }
 
   const id = btn.getAttribute("data-id");
   let qty = parseInt(btn.getAttribute("data-quantity"), 10);
@@ -248,7 +249,7 @@ cartsList.addEventListener("click", (e) => {
     qty += 1; // 增加數量
   } else if (btn.classList.contains("decreaseBtn")) {
     if (qty <= 1) {
-      discardItem(id); // 刪除商品
+      discardItem(id, btn); // 刪除商品
       return;
     }
     qty -= 1; // 減少數量
@@ -266,6 +267,8 @@ const discardItem = async (id, btn) => {
     getCarts();
   } catch (err) {
     console.log(err);
+  } finally {
+    btn.classList.remove("disabled");
   }
 };
 cartsList.addEventListener("click", (e) => {
@@ -285,6 +288,8 @@ const discardAll = async (btn) => {
     getCarts();
   } catch (err) {
     console.log(err);
+  } finally {
+    btn.classList.remove("disabled");
   }
 };
 shoppingCartFoot.addEventListener("click", (e) => {
@@ -299,19 +304,18 @@ shoppingCartFoot.addEventListener("click", (e) => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       cancelButtonText: "取消",
-      confirmButtonText: "確定刪除"
+      confirmButtonText: "確定刪除",
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
           title: "已成功刪除所有品項",
           text: "購物車已清空",
-          icon: "success"
+          icon: "success",
         });
         btn.classList.add("disabled");
         discardAll(btn);
       }
     });
-   
   } else {
     return;
   }
